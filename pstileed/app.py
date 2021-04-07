@@ -16,13 +16,13 @@ class App:
         self.table_sprite = tile.Sprite()
         tables = []
         for i in range(0, self.setting.layer_count-2):
-            tables.append([sg.Text(f'レイヤー[{i}]')])
+            tables.append([sg.Text(f'Layer [{i}]')])
             for p in range(0, 4):
                 tables.append([sg.Input(size=(10, 1), readonly=True, key=f'k{i}_{p}'), sg.Input(size=(10, 1), enable_events=True, key=f'v{i}_{p}')])
         tables.append([sg.Text('', size=(10, 30))])
         layout = [
             [sg.Input(), sg.Button('Open'), sg.Button('Save')],
-            [sg.Text('配置可能なピース'), sg.Text('盤面', pad=(320, 0)), sg.Text('プロパティ', pad=(260, 0))],
+            [sg.Text('Pallet'), sg.Text('Board', pad=(380, 0)), sg.Text('Property', pad=(195, 0))],
             [sg.Canvas(size=self.editor_setting.panel_size, key='editor_canvas'), sg.Canvas(size=self.setting.panel_size, key='canvas'), sg.Column(tables)]
         ]
         self.window = sg.Window('pstileed', layout, finalize=True, resizable=True)
