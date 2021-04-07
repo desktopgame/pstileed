@@ -71,6 +71,9 @@ class App:
         self.editor_tkCanvas.bind('<Motion>', self.editor_board.on_mouse_motion)
         # 選択中のピースをレイヤーへ配置する
         def on_select(row: int, col: int):
+            # ピースが選択されていないので何もしない
+            if self.editor_board.select_row < 0 or self.editor_board.select_col < 0:
+                return
             slot: tile.Slot = self.editor_board.first_layer.select_slots(self.editor_board.select_row, self.editor_board.select_col)[0]
             from_tile = slot.tile_info
             new_tile = from_tile.duplicate()
