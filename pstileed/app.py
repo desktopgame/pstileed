@@ -25,7 +25,7 @@ class App:
             [sg.Text('配置可能なピース'), sg.Text('盤面', pad=(320, 0)), sg.Text('プロパティ', pad=(260, 0))],
             [sg.Canvas(size=self.editor_setting.panel_size, key='editor_canvas'), sg.Canvas(size=self.setting.panel_size, key='canvas'), sg.Column(tables)]
         ]
-        self.window = sg.Window('tileed', layout, finalize=True, resizable=True)
+        self.window = sg.Window('pstileed', layout, finalize=True, resizable=True)
         # 盤面を作成
         self.canvas: sg.Canvas = self.window['canvas']
         self.tkCanvas: Tk.Canvas = self.canvas.TKCanvas
