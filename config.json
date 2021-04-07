@@ -3,7 +3,7 @@
         {
             "asset": "assets/metal_floor.png",
             "layer": 0,
-            "id": 0,
+            "id": 1,
             "attributes": {
                 "test": "test_v"
             }
@@ -11,7 +11,7 @@
         {
             "asset": "assets/ban.png",
             "layer": 1,
-            "id": 1,
+            "id": 2,
             "attributes": {
                 "test2": "test_v"
             }

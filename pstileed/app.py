@@ -18,7 +18,7 @@ class App:
         for i in range(0, self.setting.layer_count-2):
             tables.append([sg.Text(f'レイヤー[{i}]')])
             for p in range(0, 4):
-                tables.append([sg.Input(size=(10, 1), key=f'k{i}_{p}'), sg.Input(size=(10, 1), key=f'v{i}_{p}')])
+                tables.append([sg.Input(size=(10, 1), readonly=True, key=f'k{i}_{p}'), sg.Input(size=(10, 1), enable_events=True, key=f'v{i}_{p}')])
         tables.append([sg.Text('', size=(10, 30))])
         layout = [
             [sg.Input(), sg.Button('Open'), sg.Button('Save')],
@@ -74,12 +74,20 @@ class App:
             # ピースが選択されていないので何もしない
             if self.editor_board.select_row < 0 or self.editor_board.select_col < 0:
                 return
-            slot: tile.Slot = self.editor_board.first_layer.select_slots(self.editor_board.select_row, self.editor_board.select_col)[0]
-            from_tile = slot.tile_info
-            new_tile = from_tile.duplicate()
-            new_tile.remove_attribute('layer')
-            self.board.stack.layers[from_tile.attributes.get('layer', 0)].select_slots(row, col)[0].tile_info = new_tile
-            self._edit_props(row, col)
+            # 選択されているスロットの取得
+            from_slot: tile.Slot = self.editor_board.first_layer.select_slots(self.editor_board.select_row, self.editor_board.select_col)[0]
+            from_tile = from_slot.tile_info
+            # 書き込み先のスロットの取得
+            to_slot: tile.Slot = self.board.stack.layers[from_tile.attributes.get('layer', 0)].select_slots(row, col)[0]
+            to_tile = to_slot.tile_info
+            # 種別が違うなら配置
+            if from_tile.id != to_tile.id:
+                new_tile = from_tile.duplicate()
+                new_tile.remove_attribute('layer')
+                to_slot.tile_info = new_tile
+                self._edit_props(row, col)
+            else:
+                self._edit_props(row, col)
 
         self.board.on_select = on_select
 
@@ -103,6 +111,21 @@ class App:
                 val_input.update(v)
                 index += 1
 
+    def _scan_props(self, event, values):
+        for i in range(0, self.setting.layer_count-2):
+            # プロパティ入力領域を空っぽに
+            for p in range(0, 4):
+                if event == f'v{i}_{p}':
+                    self._apply_props(values, i, p)
+                    break
+
+    def _apply_props(self, values, layer: int, prop_index: int):
+        sel_row: int = self.board.select_row
+        sel_col: int = self.board.select_col
+        if sel_row < 0 or sel_col < 0:
+            return
+        slot: tile.Slot = self.board.stack.layers[layer].select_slots(sel_row, sel_col)[0]
+        slot.tile_info.put_attribute(values[f'k{layer}_{prop_index}'], values[f'v{layer}_{prop_index}'])
 
     def start(self):
         # イベントループ
@@ -110,4 +133,5 @@ class App:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED:
                 break
+            self._scan_props(event, values)
         self.window.close()
