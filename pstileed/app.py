@@ -4,6 +4,7 @@ import tkinter as Tk
 import PIL.ImageTk as ImageTK
 import pstileed.tile as tile
 import json
+import os.path
 from PIL import Image
 from typing import Set, Tuple, List
 
@@ -21,7 +22,7 @@ class App:
                 tables.append([sg.Input(size=(10, 1), readonly=True, key=f'k{i}_{p}'), sg.Input(size=(10, 1), enable_events=True, key=f'v{i}_{p}')])
         tables.append([sg.Text('', size=(10, 30))])
         layout = [
-            [sg.Input(), sg.Button('Open'), sg.Button('Save')],
+            [sg.Input(os.path.join(os.path.expanduser("~"), 'data.json'), key='File'), sg.Button('Open'), sg.Button('Save')],
             [sg.Text('Pallet'), sg.Text('Board', pad=(380, 0)), sg.Text('Property', pad=(195, 0))],
             [sg.Canvas(size=self.editor_setting.panel_size, key='editor_canvas'), sg.Canvas(size=self.setting.panel_size, key='canvas'), sg.Column(tables)]
         ]
@@ -127,11 +128,32 @@ class App:
         slot: tile.Slot = self.board.stack.layers[layer].select_slots(sel_row, sel_col)[0]
         slot.tile_info.put_attribute(values[f'k{layer}_{prop_index}'], values[f'v{layer}_{prop_index}'])
 
+    def _open_board(self):
+        file: str = sg.popup_get_file('Open a file.')
+        with open(file, 'r') as f:
+            self.board.stack.from_json(json.load(f), self.setting)
+        self.window['File'].update(file)
+        self.board.batch()
+
+    def _save_board(self):
+        file_input: sg.Input = self.window[f'File']
+        file: str = file_input.get()
+        if file == '':
+            sg.popup('Error', 'Enter a file name.')
+            return
+        with open(file, 'w+') as f:
+            json.dump(self.board.stack.to_json(), f)
+
     def start(self):
         # イベントループ
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED:
                 break
-            self._scan_props(event, values)
+            elif event == 'Open':
+                self._open_board()
+            elif event == 'Save':
+                self._save_board()
+            else:
+                self._scan_props(event, values)
         self.window.close()
