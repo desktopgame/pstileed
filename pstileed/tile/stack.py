@@ -12,10 +12,10 @@ class Stack:
     def layers(self) -> List[Layer]:
         return self.__layers
 
-    def to_json(self) -> dict:
+    def to_json(self, layer_count: int) -> dict:
         ret = {}
         layerData = []
-        for i in range(0, len(self.layers)):
+        for i in range(0, layer_count):
             layer = self.layers[i]
             # レイヤー情報をJSON化
             slotDataJson = []
@@ -37,10 +37,14 @@ class Stack:
         ret['m_layerData'] = layerData
         return ret
 
-    def from_json(self, j: dict, s: Setting):
+    def from_json(self, j: dict, s: Setting, layer_count: int):
         self.layers.clear()
         layerData = j['m_layerData']
+        layerIndex = 0
         for layer in layerData:
+            if layerIndex >= layer_count:
+                break
+            layerIndex += 1
             slots = layer['m_slotData']
             newLayer = Layer()
             for slot in slots:

@@ -131,7 +131,7 @@ class App:
     def _open_board(self):
         file: str = sg.popup_get_file('Open a file.')
         with open(file, 'r') as f:
-            self.board.stack.from_json(json.load(f), self.setting)
+            self.board.stack.from_json(json.load(f), self.setting, 3)
         self.window['File'].update(file)
         self.board.batch()
 
@@ -142,7 +142,7 @@ class App:
             sg.popup('Error', 'Enter a file name.')
             return
         with open(file, 'w+') as f:
-            json.dump(self.board.stack.to_json(), f)
+            json.dump(self.board.stack.to_json(3), f)
 
     def start(self):
         # イベントループ
