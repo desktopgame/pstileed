@@ -22,7 +22,7 @@ class App:
                 tables.append([sg.Input(size=(10, 1), readonly=True, key=f'k{i}_{p}'), sg.Input(size=(10, 1), enable_events=True, key=f'v{i}_{p}')])
         tables.append([sg.Text('', size=(10, 30))])
         layout = [
-            [sg.Input(os.path.join(os.path.expanduser("~"), 'data.json'), key='File'), sg.Button('Open'), sg.Button('Save')],
+            [sg.Input(os.path.join(os.path.expanduser("~"), 'data.json'), key='File'), sg.Button('Open'), sg.Button('Save'), sg.Button('SaveAs')],
             [sg.Text('Pallet'), sg.Text('Board', pad=(380, 0)), sg.Text('Property', pad=(195, 0))],
             [sg.Canvas(size=self.editor_setting.panel_size, key='editor_canvas'), sg.Canvas(size=self.setting.panel_size, key='canvas'), sg.Column(tables)]
         ]
@@ -144,6 +144,11 @@ class App:
         with open(file, 'w+') as f:
             json.dump(self.board.stack.to_json(3), f)
 
+    def _save_as_board(self):
+        file: str = sg.popup_get_file('Save a file.')
+        self.window['File'].update(file)
+        self._save_board()
+
     def start(self):
         # イベントループ
         while True:
@@ -154,6 +159,8 @@ class App:
                 self._open_board()
             elif event == 'Save':
                 self._save_board()
+            elif event == 'SaveAs':
+                self._save_as_board()
             else:
                 self._scan_props(event, values)
         self.window.close()
