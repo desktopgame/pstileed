@@ -1,3 +1,4 @@
+from PIL.Image import new
 from pstileed.tile.tile_info import TileInfo
 from pstileed.tile.setting import Setting
 from pstileed.tile.slot import Slot
@@ -38,6 +39,7 @@ class Stack:
         return ret
 
     def from_json(self, j: dict, s: Setting, layer_count: int):
+        orig_len = len(self.layers)
         self.layers.clear()
         layerData = j['m_layerData']
         layerData = sorted(layerData, key=lambda l: l['m_index'])
@@ -57,10 +59,22 @@ class Stack:
                     s.slot_width,
                     s.slot_height
                 )
-                newSlot.tile_info = TileInfo(slot['m_asset'], slot['m_id'])
-                for k, v in slot.items():
-                    if k == 'm_position' or k == 'm_asset' or k == 'm_id':
-                        continue
-                    newSlot.tile_info.attributes[k] = v
+                if slot['m_id'] > 0:
+                    newSlot.tile_info = TileInfo(slot['m_asset'], slot['m_id'])
+                    for k, v in slot.items():
+                        if k == 'm_position' or k == 'm_asset' or k == 'm_id':
+                            continue
+                        newSlot.tile_info.attributes[k] = v
+                else:
+                    newSlot.tile_info = TileInfo('assets/empty.png', 0)
                 newLayer.slots.append(newSlot)
+            self.layers.append(newLayer)
+        # フォーカス用のレイヤーを追加
+        while len(self.layers) < orig_len:
+            newLayer = Layer()
+            for i in range(0, s.row_count):
+                for j in range(0, s.col_count):
+                    newSlot = Slot(i, j, j * s.slot_width, i * s.slot_height, s.slot_width, s.slot_height)
+                    newSlot.tile_info = TileInfo('assets/empty.png', 0)
+                    newLayer.slots.append(newSlot)
             self.layers.append(newLayer)
