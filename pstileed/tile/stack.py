@@ -40,6 +40,7 @@ class Stack:
     def from_json(self, j: dict, s: Setting, layer_count: int):
         self.layers.clear()
         layerData = j['m_layerData']
+        layerData = sorted(layerData, key=lambda l: l['m_index'])
         layerIndex = 0
         for layer in layerData:
             if layerIndex >= layer_count:
